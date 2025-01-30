@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 from __future__ import print_function
 from .frameworkmanager import Framework, FrameworkVersion, FrameworkRegistry, get_framework_registry
@@ -15,10 +15,6 @@ _ALL_SETTINGS = [
     (_SETTING_WORKER_CORES, "cores available per worker instance to Spark"),
     (_SETTING_WORKER_MEMORY, "memory available per worker instance to spark")
 ]
-
-_DEFAULT_WORKER_INSTANCES = 1
-_DEFAULT_WORKER_CORES = 1
-_DEFAULT_WORKER_MEMORY = "1g"
 
 class SparkFrameworkVersion(FrameworkVersion):
     def __init__(self, version, archive_url, archive_extension, archive_root_dir, template_dir):
@@ -39,9 +35,12 @@ class SparkFramework(Framework):
             raise util.InvalidSetupError("Spark requires at least two machines: a master and at least one worker.")
 
         # Extract settings
-        worker_instances = str(settings.pop(_SETTING_WORKER_INSTANCES, _DEFAULT_WORKER_INSTANCES))
-        worker_cores = str(settings.pop(_SETTING_WORKER_CORES, _DEFAULT_WORKER_CORES))
-        worker_memory = str(settings.pop(_SETTING_WORKER_MEMORY, _DEFAULT_WORKER_MEMORY))
+        try: 
+            worker_instances = str(settings.pop(_SETTING_WORKER_INSTANCES))
+            worker_cores = str(settings.pop(_SETTING_WORKER_CORES))
+            worker_memory = str(settings.pop(_SETTING_WORKER_MEMORY))
+        except KeyError as e:
+            raise util.InvalidSetupError(f"Deploying error: setting missing {e.args[0]}")
         if len(settings) > 0:
             raise util.InvalidSetupError("Found unknown settings for Spark: '%s'" % "','".join(settings.keys()))
 
@@ -110,3 +109,4 @@ get_framework_registry().framework("spark").add_version(SparkFrameworkVersion("2
 get_framework_registry().framework("spark").add_version(SparkFrameworkVersion("3.0.0", "https://archive.apache.org/dist/spark/spark-3.0.0/spark-3.0.0-bin-hadoop2.7.tgz", "tgz", "spark-3.0.0-bin-hadoop2.7", "2.4.x"))
 get_framework_registry().framework("spark").add_version(SparkFrameworkVersion("3.0.2", "https://archive.apache.org/dist/spark/spark-3.0.2/spark-3.0.2-bin-hadoop2.7.tgz", "tgz", "spark-3.0.2-bin-hadoop2.7", "2.4.x"))
 get_framework_registry().framework("spark").add_version(SparkFrameworkVersion("3.1.1", "https://apache.mirror.wearetriple.com/spark/spark-3.1.1/spark-3.1.1-bin-hadoop3.2.tgz", "tgz", "spark-3.1.1-bin-hadoop3.2", "2.4.x"))
+get_framework_registry().framework("spark").add_version(SparkFrameworkVersion("custom", "https://github.com/kazemaksOG/spark-custom-scheduler.git", "git", "spark-custom", "custom"))

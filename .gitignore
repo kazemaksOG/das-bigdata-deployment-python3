@@ -1,2 +1,5 @@
-# Generated Python files
 *.pyc
+/venv/
+
+# downloaded frameworks
+frameworks/

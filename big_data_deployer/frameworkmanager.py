@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 from . import util
 from collections import namedtuple
@@ -6,7 +6,8 @@ import os.path
 import shutil
 import tarfile
 import tempfile
-import urllib2
+import requests
+import subprocess
 
 class DownloadFailedError(Exception): pass
 class MissingArchiveError(Exception): pass
@@ -156,12 +157,13 @@ class FrameworkManager:
         dist_url = framework_version.archive_url
         log_fn(1, "Downloading %s version %s from \"%s\"..." % (framework.name, version, dist_url))
         try:
-            with open(archive_file, "wb") as archive_stream:
-                download_stream = urllib2.urlopen(dist_url, timeout=1000)
-                shutil.copyfileobj(download_stream, archive_stream)
+            with requests.get(dist_url, stream=True, timeout=1000) as download_stream, open(archive_file, "wb") as archive_stream:
+                if download_stream.status_code != 200:
+                    raise DownloadFailedError(f"Failed to download {framework.name} from \"{dist_url}\" with HTTP status {download_stream.status_code}.")
+                shutil.copyfileobj(download_stream.raw, archive_stream)
                 log_fn(2, "Download complete.")
-        except urllib2.HTTPError as e:
-            raise DownloadFailedError("Failed to download %s from \"%s\" with HTTP status %d." % (framework.name, dist_url, e.getcode()))
+        except requests.RequestException as e:
+            raise DownloadFailedError("Failed to download %s from \"%s\" with request error %d." % (framework.name, dist_url, e))
         except Exception as e:
             raise DownloadFailedError("Failed to download %s from \"%s\" with unknown error: %s." % (framework.name, dist_url, e))
 
@@ -185,30 +187,37 @@ class FrameworkManager:
         else:
             log_fn(2, "Found no previous installation of %s." % framework.name)
 
-        # Check if the archive file is already present
-        if self.__check_if_archive_present(framework, framework_version):
-            log_fn(1, "Found %s version %s archive." % (framework.name, version))
-        elif download_if_missing:
-            self.download(framework_identifier, version, log_fn = util.create_log_fn(1, log_fn))
-        else:
-            raise MissingArchiveError("Archive for %s version %s is not present in \"%s\"." % (framework.name, version, self.archive_dir))
+        # Check if the version is custom and has to be manually compiled
+        if version == "custom":
+            log_fn(1, f"Installing custom version {framework.name}-{version}")
+            subprocess.run(["git", "clone", framework_version.archive_url, target_dir, "--depth=1"], check=True)
+            log_fn(1, f"Finished downloading the reporsitory. Please navigate to {target_dir} and compile it manually with ./build/sbt package") 
 
-        # Extract the distribution to a temporary directory
-        log_fn(1, "Extracting %s version %s archive..." % (framework.name, version))
-        try:
-            extract_tmp_dir = tempfile.mkdtemp(dir = self.__temp_dir)
-        except Exception as e:
-            raise InstallFailedError("Failed to create temporary directory to extract %s with unknown error: %s." % (framework.name, e))
-        try:
-            with tarfile.open(self.__archive_file(framework, framework_version)) as archive_tar:
-                archive_tar.extractall(extract_tmp_dir)
-            log_fn(2, "Extraction to temporary directory complete. Moving to framework directory...")
-            shutil.move(os.path.join(extract_tmp_dir, framework_version.archive_root_dir), target_dir)
-            log_fn(3, "Move complete.")
-        except Exception as e:
-            raise InstallFailedError("Failed to extract %s archive \"%s\" with unknown error: %s." % (framework.name, self.__archive_file(framework, framework_version), e))
-        finally:
-            shutil.rmtree(extract_tmp_dir)
+        else:
+            # Check if the archive file is already present
+            if self.__check_if_archive_present(framework, framework_version):
+                log_fn(1, "Found %s version %s archive." % (framework.name, version))
+            elif download_if_missing:
+                self.download(framework_identifier, version, log_fn = util.create_log_fn(1, log_fn))
+            else:
+                raise MissingArchiveError("Archive for %s version %s is not present in \"%s\"." % (framework.name, version, self.archive_dir))
+
+            # Extract the distribution to a temporary directory
+            log_fn(1, "Extracting %s version %s archive..." % (framework.name, version))
+            try:
+                extract_tmp_dir = tempfile.mkdtemp(dir = self.__temp_dir)
+            except Exception as e:
+                raise InstallFailedError("Failed to create temporary directory to extract %s with unknown error: %s." % (framework.name, e))
+            try:
+                with tarfile.open(self.__archive_file(framework, framework_version)) as archive_tar:
+                    archive_tar.extractall(extract_tmp_dir)
+                log_fn(2, "Extraction to temporary directory complete. Moving to framework directory...")
+                shutil.move(os.path.join(extract_tmp_dir, framework_version.archive_root_dir), target_dir)
+                log_fn(3, "Move complete.")
+            except Exception as e:
+                raise InstallFailedError("Failed to extract %s archive \"%s\" with unknown error: %s." % (framework.name, self.__archive_file(framework, framework_version), e))
+            finally:
+                shutil.rmtree(extract_tmp_dir)
 
         log_fn(1, "%s version %s is now available at \"%s\"." % (framework.name, version, target_dir))
 

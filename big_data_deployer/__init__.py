@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-from frameworkmanager import Framework, FrameworkVersion, FrameworkRegistry, FrameworkManager, get_framework_registry
-import hadoop, zookeeper, spark, influxdb
+from big_data_deployer.frameworkmanager import Framework, FrameworkVersion, FrameworkRegistry, FrameworkManager, get_framework_registry
+from big_data_deployer import hadoop, zookeeper, spark, influxdb
+
 

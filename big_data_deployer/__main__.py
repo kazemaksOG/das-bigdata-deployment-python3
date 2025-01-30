@@ -1,6 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-from __future__ import print_function
 from . import *
 from . import preserve
 import argparse
@@ -49,7 +48,7 @@ def add_deploy_subparser(parser):
 def list_frameworks(args):
     print("Supported frameworks:")
     if args.versions:
-        for framework_ident, framework in sorted(get_framework_registry().frameworks.iteritems()):
+        for framework_ident, framework in sorted(get_framework_registry().frameworks.items()):
             for version in sorted(framework.versions):
                 print("%s %s" % (framework_ident, version))
     else:

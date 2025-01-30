@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 from __future__ import print_function
 from .frameworkmanager import Framework, FrameworkVersion, FrameworkRegistry, get_framework_registry
