@@ -6,6 +6,7 @@ import subprocess
 
 class InvalidSetupError(Exception): pass
 
+DEFAULT_LOG = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "deploy_log.txt")
 def log(indentation, message):
     indent_str = ""
     while indentation > 1:
@@ -22,6 +23,11 @@ def execute_command_quietly(command_line_list):
     """Executes a command, given as a list, while supressing any output."""
     with open(os.devnull, "wb") as devnull:
         subprocess.check_call(command_line_list, stdout=devnull, stderr=subprocess.STDOUT)
+
+def execute_command_log(command_line_list, log_file=DEFAULT_LOG):
+    with open(log_file, "ab") as logfile:
+        logfile.write(f"\nExecuting: {' '.join(command_line_list)}\n".encode())
+        subprocess.check_call(command_line_list, stdout=log_file, stderr=subprocess.STDOUT)
 
 def execute_command_for_output(command_line_list):
     return subprocess.Popen(command_line_list, stdout=subprocess.PIPE).communicate()[0].decode("utf-8")

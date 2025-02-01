@@ -16,6 +16,10 @@ _ALL_SETTINGS = [
     (_SETTING_WORKER_MEMORY, "memory available per worker instance to spark")
 ]
 
+_MODULES = [
+    "java/jdk-17"
+]
+
 class SparkFrameworkVersion(FrameworkVersion):
     def __init__(self, version, archive_url, archive_extension, archive_root_dir, template_dir):
         super(SparkFrameworkVersion, self).__init__(version, archive_url, archive_extension, archive_root_dir)
@@ -84,23 +88,29 @@ class SparkFramework(Framework):
         log_fn(1, "Creating a clean environment on the master and workers...")
         local_spark_dir = "/local/%s/spark/" % substitutions["__USER__"]
         log_fn(2, "Purging \"%s\" on master (%s)..." % (local_spark_dir, master))
-        util.execute_command_quietly(["ssh", master, 'rm -rf "%s"' % local_spark_dir])
+        util.execute_command_log(["ssh", master, 'rm -rf "%s"' % local_spark_dir])
         log_fn(2, "Purging \"%s\" on workers..." % local_spark_dir)
         for worker in workers:
-            util.execute_command_quietly(['ssh', worker, 'rm -rf "%s"' % local_spark_dir])
+            util.execute_command_log(['ssh', worker, 'rm -rf "%s"' % local_spark_dir])
+
+        # Creating directory structure and loading modules
         log_fn(2, "Creating directory structure on master...")
-        util.execute_command_quietly(['ssh', master, 'mkdir -p "%s"' % local_spark_dir])
+        util.execute_command_log(['ssh', master, 'mkdir -p "%s"' % local_spark_dir])
         log_fn(2, "setting permissions on directory structure on master...")
-        util.execute_command_quietly(['ssh', master, 'chmod 0770 "%s"' % local_spark_dir])
+        util.execute_command_log(['ssh', master, 'chmod 0770 "%s"' % local_spark_dir])
+        for module in _MODULES:
+            util.execute_command_log(['ssh', master, f'module load {module}' ])
         log_fn(2, "Creating directory structure and setting permission on workers...")
         for worker in workers:
-            util.execute_command_quietly(['ssh', worker, 'mkdir -p "%s"' % local_spark_dir])
-            util.execute_command_quietly(['ssh', worker, 'chmod 0770 "%s"' % local_spark_dir])
+            util.execute_command_log(['ssh', worker, 'mkdir -p "%s"' % local_spark_dir])
+            util.execute_command_log(['ssh', worker, 'chmod 0770 "%s"' % local_spark_dir])
+            for module in _MODULES:
+                util.execute_command_log(['ssh', worker, f'module load {module}' ])
         log_fn(2, "Clean environment set up.")
 
         # Start Spark
         log_fn(1, "Deploying Spark...")
-        util.execute_command_quietly(['ssh', master, '%s/sbin/start-all.sh' % spark_home])
+        util.execute_command_log(['ssh', master, '%s/sbin/start-all.sh' % spark_home])
 
         log_fn(1, "Spark cluster deployed.")
 
