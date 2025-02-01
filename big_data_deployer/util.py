@@ -3,10 +3,12 @@
 from __future__ import print_function
 import os
 import subprocess
+import datetime
 
 class InvalidSetupError(Exception): pass
 
-DEFAULT_LOG = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "deploy_log.txt")
+TIMESTAMP = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+DEFAULT_LOG = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", f"deploy_log_{TIMESTAMP}.txt")
 def log(indentation, message):
     indent_str = ""
     while indentation > 1:
