@@ -16,10 +16,6 @@ _ALL_SETTINGS = [
     (_SETTING_WORKER_MEMORY, "memory available per worker instance to spark")
 ]
 
-_MODULES = [
-    "java/jdk-17"
-]
-
 class SparkFrameworkVersion(FrameworkVersion):
     def __init__(self, version, archive_url, archive_extension, archive_root_dir, template_dir):
         super(SparkFrameworkVersion, self).__init__(version, archive_url, archive_extension, archive_root_dir)
@@ -93,19 +89,15 @@ class SparkFramework(Framework):
         for worker in workers:
             util.execute_command_log(['ssh', worker, 'rm -rf "%s"' % local_spark_dir])
 
-        # Creating directory structure and loading modules
+        # Creating directory structure 
         log_fn(2, "Creating directory structure on master...")
         util.execute_command_log(['ssh', master, 'mkdir -p "%s"' % local_spark_dir])
         log_fn(2, "setting permissions on directory structure on master...")
         util.execute_command_log(['ssh', master, 'chmod 0770 "%s"' % local_spark_dir])
-        for module in _MODULES:
-            util.execute_command_log(['ssh', master, f'module load {module}' ])
         log_fn(2, "Creating directory structure and setting permission on workers...")
         for worker in workers:
             util.execute_command_log(['ssh', worker, 'mkdir -p "%s"' % local_spark_dir])
             util.execute_command_log(['ssh', worker, 'chmod 0770 "%s"' % local_spark_dir])
-            for module in _MODULES:
-                util.execute_command_log(['ssh', worker, f'module load {module}' ])
         log_fn(2, "Clean environment set up.")
 
         # Start Spark

@@ -24,10 +24,10 @@ def execute_command_quietly(command_line_list):
     with open(os.devnull, "wb") as devnull:
         subprocess.check_call(command_line_list, stdout=devnull, stderr=subprocess.STDOUT)
 
-def execute_command_log(command_line_list, log_file=DEFAULT_LOG):
-    with open(log_file, "ab") as logfile:
+def execute_command_log(command_line_list, log_file_name=DEFAULT_LOG):
+    with open(log_file_name, "ab") as logfile:
         logfile.write(f"\nExecuting: {' '.join(command_line_list)}\n".encode())
-        subprocess.check_call(command_line_list, stdout=log_file, stderr=subprocess.STDOUT)
+        subprocess.check_call(command_line_list, stdout=logfile, stderr=subprocess.STDOUT)
 
 def execute_command_for_output(command_line_list):
     return subprocess.Popen(command_line_list, stdout=subprocess.PIPE).communicate()[0].decode("utf-8")
