@@ -36,6 +36,7 @@ def add_install_subparser(parser):
 
 def add_deploy_subparser(parser):
     deploy_parser = parser.add_parser("deploy", help="deploy a Big Data framework")
+    deploy_parser.add_argument("-q", "--quiet", help="Only output the master address if successful", action="store_true")
     deploy_parser.add_argument("-f", "--framework-dir", help="installation directory for Big Data frameworks", action="store", default=DEFAULT_FRAMEWORK_DIR)
     deploy_parser.add_argument("-s", "--settings", metavar="SETTINGS_FILE", help="read settings from a file, imported in order of appearance on the command line", action="append", dest="settings_files", default=[])
     deploy_parser.add_argument("--list-settings", help="list settings supported by specified framework and version", action="store_true")
@@ -92,7 +93,7 @@ def deploy_framework(args):
             settings[key_value[0].strip()] = key_value[1].strip()
 
         # Deploy the framework
-        fm.deploy(args.FRAMEWORK, args.VERSION, machines, settings)
+        fm.deploy(args.FRAMEWORK, args.VERSION, machines, settings, log_fn=util.create_log_fn(0, log_fn, args.quiet))
 
 def main():
     args = parse_arguments()

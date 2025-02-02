@@ -35,8 +35,8 @@ spark.executor.memory            __WORKER_MEMORY__
 
 # Event enabling event logging
 spark.eventLog.enabled           true
-spark.eventLog.dir               /var/scratch/__USER__/
-spark.history.fs.logDirectory    /var/scratch/__USER__/ 
+spark.eventLog.dir               /var/scratch/__USER__/eventlogs/
+spark.history.fs.logDirectory    /var/scratch/__USER__/eventlogs/
 
 # Spark SQL settings
 # spark.sql.warehouse.dir          /local/__USER__/spark/sql_warehouse/

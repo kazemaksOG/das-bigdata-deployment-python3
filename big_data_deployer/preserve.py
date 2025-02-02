@@ -94,7 +94,7 @@ class PreserveManager:
 
     def get_own_reservations(self):
         reservations = self.get_reservations()
-        return { k: v for k, v in reservations.iteritems() if v.username == self.username }
+        return { k: v for k, v in reservations.items() if v.username == self.username }
 
     def create_reservation(self, num_machines, time):
         if num_machines < 1:
