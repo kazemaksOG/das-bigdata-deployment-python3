@@ -93,7 +93,7 @@ def deploy_framework(args):
             settings[key_value[0].strip()] = key_value[1].strip()
 
         # Deploy the framework
-        fm.deploy(args.FRAMEWORK, args.VERSION, machines, settings, log_fn=util.create_log_fn(0, log_fn, args.quiet))
+        fm.deploy(args.FRAMEWORK, args.VERSION, machines, settings, log_fn=util.create_log_fn(0, util.log, args.quiet))
 
 def main():
     args = parse_arguments()
