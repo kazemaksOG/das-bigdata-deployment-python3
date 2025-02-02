@@ -21,7 +21,7 @@ def log(indentation, message, quiet=False):
     print(indent_str + message)
 
 def create_log_fn(base_indentation, base_log=log, quiet=False):
-    return lambda indentation, message: base_log(base_indentation + indentation, message, quiet)
+    return lambda indentation, message: base_log(base_indentation + indentation, message, quiet=quiet)
 
 def execute_command_quietly(command_line_list):
     """Executes a command, given as a list, while supressing any output."""
