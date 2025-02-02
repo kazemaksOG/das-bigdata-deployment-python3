@@ -32,7 +32,7 @@ class SparkFramework(Framework):
     def deploy(self, spark_home, framework_version, machines, settings, log_fn=util.log):
         """Deploys Spark to a given set of workers and a master node."""
         if len(machines) < 2:
-            raise util.InvalidSetupError("Spark requires at least two machines: a master and at least one worker.")
+            raise util.InvalidSetupError(f"Spark requires at least two machines: a master and at least one worker, provided {machines}")
 
         # Extract settings
         try: 
