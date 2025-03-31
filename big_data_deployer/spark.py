@@ -114,3 +114,4 @@ get_framework_registry().framework("spark").add_version(SparkFrameworkVersion("3
 get_framework_registry().framework("spark").add_version(SparkFrameworkVersion("3.0.2", "https://archive.apache.org/dist/spark/spark-3.0.2/spark-3.0.2-bin-hadoop2.7.tgz", "tgz", "spark-3.0.2-bin-hadoop2.7", "2.4.x"))
 get_framework_registry().framework("spark").add_version(SparkFrameworkVersion("3.1.1", "https://apache.mirror.wearetriple.com/spark/spark-3.1.1/spark-3.1.1-bin-hadoop3.2.tgz", "tgz", "spark-3.1.1-bin-hadoop3.2", "2.4.x"))
 get_framework_registry().framework("spark").add_version(SparkFrameworkVersion("custom", "https://github.com/kazemaksOG/spark-custom-scheduler.git", "git", "spark-custom", "custom"))
+get_framework_registry().framework("spark").add_version(SparkFrameworkVersion("custom-3.5.5", "https://github.com/kazemaksOG/spark-3.5.5-custom", "git", "spark-3.5.5-custom", "custom"))
