@@ -31,7 +31,7 @@
 # - SPARK_PUBLIC_DNS, to set the public DNS name of the driver program
 # - SPARK_LOCAL_DIRS, storage directories to use on this node for shuffle and RDD data
 # - MESOS_NATIVE_JAVA_LIBRARY, to point to your libmesos.so if you use Mesos
-SPARK_LOCAL_IP=${HOSTNAME}.ib.cluster
+SPARK_LOCAL_IP=${HOSTNAME}
 SPARK_LOCAL_DIRS=/local/__USER__/spark/
 
 # Options read in YARN client/cluster mode
